@@ -1,0 +1,13 @@
+GET http://localhost:8080/demo/add?name=First&email=someemail@someemailprovider.com
+Accept: */*
+Cache-Control: no-cache
+
+<> 2019-02-04T110738.200.txt
+<> 2019-02-04T110716.200.txt
+<> 2019-02-04T110352.200.txt
+<> 2019-02-04T110126.200.txt
+<> 2019-02-04T105841.200.txt
+<> 2019-02-04T105716.404.json
+
+###
+
