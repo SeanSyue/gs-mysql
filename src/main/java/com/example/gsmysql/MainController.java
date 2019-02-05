@@ -1,8 +1,11 @@
 package com.example.gsmysql;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Controller    // This means that this class is a Controller
 @RequestMapping(path="/demo") // This means URL's start with /demo (after Application path)
@@ -15,6 +18,7 @@ public class MainController {
     public @ResponseBody String addNewUser (@RequestBody User user) {
         // @ResponseBody means the returned String is the response, not a view name
         // @RequestParam means it is a parameter from the GET or POST request
+        // It is NECESSARY for receiving correct response from the server.
 
         userRepository.save(user);
         return "Saved";
@@ -24,5 +28,32 @@ public class MainController {
     public @ResponseBody Iterable<User> getAllUsers() {
         // This returns a JSON or XML with the users
         return userRepository.findAll();
+    }
+
+    @GetMapping(path = "/user/{id}")
+    public @ResponseBody User getUserByID(@PathVariable(value = "id") Integer id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        // `ResourceNotFoundException`: ensure that we correctly receive a "NotFoundError"
+        //  instead of a vague `Null` value when we query a wrong id.
+    }
+
+    @PutMapping(path = "/user/{id}")
+    // `@Valid`: Since we had marked `@NotBlank` annotation in the `User` model
+    // This is for making sure that the request body is valid.
+    public @ResponseBody User updateUser(@PathVariable(value = "id") Integer id, @Valid @RequestBody User newUser) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+
+        user.setName(newUser.getName());
+        user.setEmail(newUser.getEmail());
+
+        return userRepository.save(user);
+    }
+
+    @DeleteMapping(path = "/user/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable(value = "id") Integer id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        userRepository.delete(user);
+
+        return ResponseEntity.ok().build();
     }
 }
